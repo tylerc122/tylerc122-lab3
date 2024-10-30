@@ -2,6 +2,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -28,11 +30,12 @@ public class WordCounter {
     }
 
     public int processText(StringBuffer buffer, String stopWord) {
+
         // Need try catch blocks somewhere here to handle exceptions
-        Pattern regex = Pattern.compile('[a-zA-Z0-9]');
+        Pattern regex = Pattern.compile("[a-zA-Z0-9']+");
+
         Matcher regexMatcher = regex.matcher(text);
-        while (regexMatcher.find()) {
-            System.out.println("Found the word:  " + regexMatcher.group());
+        while (regexMatcher.find() && regexMatcher.find() != stopWord) {
         }
         return 0;
     }
