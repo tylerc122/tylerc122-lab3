@@ -9,7 +9,24 @@ import java.io.IOException;
 
 public class WordCounter {
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
         int option;
+
+        while (true) {
+            System.out.println("Enter valid option (1 or 2): ");
+            try {
+                option = Integer.parseInt(scanner.nextLine());
+
+                if (option == 1) {
+                    processFile();
+                }
+                if (option == 2) {
+                    processText();
+                }
+            } catch (NumberFormatException numError) {
+                System.out.println("Please enter a valid number");
+            }
+        }
 
         // How do we handle when a user enters an invalid option?
         // Try catch block I think, but I don't know how to just make them choose a
@@ -18,29 +35,37 @@ public class WordCounter {
 
         // So after we verify valid option and check if it has a stopword, we call
         // either processFile or processText based on value of option?
-        switch (option) {
-            case 1:
-                processFile();
-                break;
-            case 2:
-                processText();
-                break;
-        }
 
     }
 
-    public int processText(StringBuffer buffer, String stopWord) {
-
+    public static int processText(StringBuffer text, String stopWord) throws InvalidStopwordException, TooSmallText {
+        int wordCount = 0;
+        boolean foundStopWord = false;
         // Need try catch blocks somewhere here to handle exceptions
         Pattern regex = Pattern.compile("[a-zA-Z0-9']+");
 
         Matcher regexMatcher = regex.matcher(text);
-        while (regexMatcher.find() && regexMatcher.find() != stopWord) {
+
+        while (regexMatcher.find()) {
+            wordCount++;
+            if (stopWord != null && regexMatcher.group().equals(stopWord)) {
+                foundStopWord = true;
+                break;
+            }
         }
-        return 0;
+
+        if (wordCount < 5) {
+            throw new TooSmallText("TooSmallText: Only found " + wordCount + " words.");
+        }
+
+        if (!foundStopWord && stopWord != null) {
+            throw new InvalidStopwordException("InvalidStopwordException: Couldn't find stopword: " + stopWord);
+        }
+
+        return wordCount;
     }
 
-    public StringBuffer processFile(String path) {
+    public static StringBuffer processFile(String path) {
         // Define a buffer that we will return
         StringBuffer result = new StringBuffer();
 
