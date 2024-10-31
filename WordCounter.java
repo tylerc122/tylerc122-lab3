@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.util.TooManyListenersException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.FileReader;
@@ -9,56 +10,30 @@ import java.io.IOException;
 
 public class WordCounter {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        int option;
-
-        while (true) {
-            System.out.println("Enter valid option (1 or 2): ");
-
-            try {
-                option = Integer.parseInt(scanner.nextLine());
-                if (option == 1) {
-                    StringBuffer fileText = processFile(args[0]);
-                    String stopWord = args.length > 1 ? args[1] : null;
-                    int wordCount = processText(fileText, stopWord);
-                    System.out.println("Found " + wordCount + " words.");
-                    break;
-                } else {
-                    StringBuffer text = new StringBuffer(args[0]);
-                    String stopWord = args.length > 1 ? args[1] : null;
-                    int wordCount = processText(text, stopWord);
-                    System.out.println("Found " + wordCount + " words.");
-                    break;
-                }
-
-            } catch (InvalidStopwordException e) {
-                System.out.println("Please enter a valid stop word: ");
-                String newStopWord = scanner.nextLine();
-                if (option == 1) {
-                    StringBuffer fileText = processFile(args[0]);
-                    String stopWord = args.length > 1 ? args[1] : null;
-                    int wordCount = processText(fileText, newStopWord);
-                    System.out.println("Found " + wordCount + " words.");
-                    break;
-                } else {
-                    StringBuffer text = new StringBuffer(args[0]);
-                    String stopWord = args.length > 1 ? args[1] : null;
-                    int wordCount = processText(text, stopWord);
-                    System.out.println("Found " + wordCount + " words.");
-                    break;
-                }
-            }
+        if (args.length < 1) {
+            System.out.println("Please provide a file or text to process");
+            return;
         }
-    }
 
-    // How do we handle when a user enters an invalid option?
-    // Try catch block I think, but I don't know how to just make them choose a
-    // valid option val.
-    // Need to also check if there is a second arg which should be a stopword.
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Choose option (1 for file, 2 for text): ");
+        int option = scanner.nextInt();
 
-    // So after we verify valid option and check if it has a stopword, we call
-    // either processFile or processText based on value of option?
-
+        try {
+            if (option == 1) {
+                StringBuffer fileText = processFile(args[0]);
+                String stopWord = args.length > 1 ? args[1] : null;
+                int count = processText(fileText, stopWord);
+                System.out.println("Found " + count + " words.");
+            } else if (option == 2) {
+                StringBuffer text = new StringBuffer(args[0]);
+                String stopWord = args.length > 1 ? args[1] : null;
+                int count = processText(text, stopWord);
+                System.out.println("Found " + count + " words.");
+            }
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
     }
 
     public static int processText(StringBuffer text, String stopWord) throws InvalidStopwordException, TooSmallText {
@@ -78,17 +53,17 @@ public class WordCounter {
         }
 
         if (wordCount < 5) {
-            throw new TooSmallText("TooSmallText: Only found " + wordCount + " words.");
+            throw new TooSmallText("Only found " + wordCount + " words.");
         }
 
-        if (!foundStopWord && stopWord != null) {
-            throw new InvalidStopwordException("InvalidStopwordException: Couldn't find stopword: " + stopWord);
+        if (foundStopWord == false && stopWord != null) {
+            throw new InvalidStopwordException("Couldn't find stopword: " + stopWord);
         }
 
         return wordCount;
     }
 
-    public static StringBuffer processFile(String path) {
+    public static StringBuffer processFile(String path) throws EmptyFileException {
         // Define a buffer that we will return
         StringBuffer result = new StringBuffer();
 
