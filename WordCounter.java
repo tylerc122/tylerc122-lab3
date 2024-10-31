@@ -14,27 +14,50 @@ public class WordCounter {
 
         while (true) {
             System.out.println("Enter valid option (1 or 2): ");
+
             try {
                 option = Integer.parseInt(scanner.nextLine());
-
                 if (option == 1) {
-                    processFile();
+                    StringBuffer fileText = processFile(args[0]);
+                    String stopWord = args.length > 1 ? args[1] : null;
+                    int wordCount = processText(fileText, stopWord);
+                    System.out.println("Found " + wordCount + " words.");
+                    break;
+                } else {
+                    StringBuffer text = new StringBuffer(args[0]);
+                    String stopWord = args.length > 1 ? args[1] : null;
+                    int wordCount = processText(text, stopWord);
+                    System.out.println("Found " + wordCount + " words.");
+                    break;
                 }
-                if (option == 2) {
-                    processText();
+
+            } catch (InvalidStopwordException e) {
+                System.out.println("Please enter a valid stop word: ");
+                String newStopWord = scanner.nextLine();
+                if (option == 1) {
+                    StringBuffer fileText = processFile(args[0]);
+                    String stopWord = args.length > 1 ? args[1] : null;
+                    int wordCount = processText(fileText, newStopWord);
+                    System.out.println("Found " + wordCount + " words.");
+                    break;
+                } else {
+                    StringBuffer text = new StringBuffer(args[0]);
+                    String stopWord = args.length > 1 ? args[1] : null;
+                    int wordCount = processText(text, stopWord);
+                    System.out.println("Found " + wordCount + " words.");
+                    break;
                 }
-            } catch (NumberFormatException numError) {
-                System.out.println("Please enter a valid number");
             }
         }
+    }
 
-        // How do we handle when a user enters an invalid option?
-        // Try catch block I think, but I don't know how to just make them choose a
-        // valid option val.
-        // Need to also check if there is a second arg which should be a stopword.
+    // How do we handle when a user enters an invalid option?
+    // Try catch block I think, but I don't know how to just make them choose a
+    // valid option val.
+    // Need to also check if there is a second arg which should be a stopword.
 
-        // So after we verify valid option and check if it has a stopword, we call
-        // either processFile or processText based on value of option?
+    // So after we verify valid option and check if it has a stopword, we call
+    // either processFile or processText based on value of option?
 
     }
 
