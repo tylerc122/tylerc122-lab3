@@ -10,22 +10,23 @@ import java.io.IOException;
 
 public class WordCounter {
     public static void main(String[] args) {
-        if (args.length < 1) {
-            System.out.println("Please provide a file or text to process");
-            return;
-        }
-
+        // Scanner stuff
         Scanner scanner = new Scanner(System.in);
         System.out.println("Choose option (1 for file, 2 for text): ");
         int option = scanner.nextInt();
 
         try {
+            // If option one
             if (option == 1) {
+                // Make new stringbuffer so we can pass it into our function
                 StringBuffer fileText = processFile(args[0]);
+                // If a stop word exists, it will be in args[1] so set it to that if it exists
                 String stopWord = args.length > 1 ? args[1] : null;
+                // Get count and print
                 int count = processText(fileText, stopWord);
                 System.out.println("Found " + count + " words.");
             } else if (option == 2) {
+                // Same ordeal here, just with file instead
                 StringBuffer text = new StringBuffer(args[0]);
                 String stopWord = args.length > 1 ? args[1] : null;
                 int count = processText(text, stopWord);
@@ -37,23 +38,32 @@ public class WordCounter {
     }
 
     public static int processText(StringBuffer text, String stopWord) throws InvalidStopwordException, TooSmallText {
+        // Doesn't account for stopword
+        int fullCount = 0;
+        // Accounts for stopword
         int wordCount = 0;
         boolean foundStopWord = false;
         // Need try catch blocks somewhere here to handle exceptions
         Pattern regex = Pattern.compile("[a-zA-Z0-9']+");
 
-        Matcher regexMatcher = regex.matcher(text);
+        Matcher noStopWordRegexMatcher = regex.matcher(text);
 
-        while (regexMatcher.find()) {
+        while (noStopWordRegexMatcher.find()) {
+            fullCount++;
+        }
+
+        Matcher stopWordRegexMatcher = regex.matcher(text);
+
+        while (stopWordRegexMatcher.find()) {
             wordCount++;
-            if (stopWord != null && regexMatcher.group().equals(stopWord)) {
+            if (stopWord != null && stopWordRegexMatcher.group().equals(stopWord)) {
                 foundStopWord = true;
                 break;
             }
         }
 
-        if (wordCount < 5) {
-            throw new TooSmallText("Only found " + wordCount + " words.");
+        if (fullCount < 5) {
+            throw new TooSmallText("Only found " + fullCount + " words.");
         }
 
         if (foundStopWord == false && stopWord != null) {
@@ -68,6 +78,13 @@ public class WordCounter {
         StringBuffer result = new StringBuffer();
 
         try {
+            // Define a file to see if it's empty
+            File file = new File(path);
+
+            // Why is this check not working?
+            if (file.length() == 0) {
+                throw new EmptyFileException(path + " was empty");
+            }
             // Define a file reader
             FileReader fileReader = new FileReader(path);
 
@@ -83,7 +100,7 @@ public class WordCounter {
                 bufferedReader.close();
                 fileReader.close();
                 // Throw empty file exception
-                throw new EmptyFileException("EmptyFileException: " + path + " was empty");
+                throw new EmptyFileException(path + " was empty");
             }
             // If it is valid, loop thru, appending each line to our string buffer result.
             while (currLine != null) {
@@ -93,6 +110,7 @@ public class WordCounter {
             // Close our readers at the end
             bufferedReader.close();
             fileReader.close();
+
             // Catches IOException which includes invalid file names and such
         } catch (IOException ex) {
             // If we end up having one of these exceptions, we need a valid file name from
