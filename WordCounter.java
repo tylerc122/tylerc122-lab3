@@ -1,8 +1,6 @@
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Scanner;
-import java.util.TooManyListenersException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.FileReader;
@@ -13,8 +11,10 @@ public class WordCounter {
         // Scanner stuff
         Scanner scanner = new Scanner(System.in);
         int option = 0;
+        // New valid option flag
         boolean validOption = false;
 
+        // Loop until we have a valid option
         while (!validOption) {
             System.out.println("Choose option (1 for file, 2 for text): ");
             try {
@@ -26,7 +26,6 @@ public class WordCounter {
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input, please enter a valid number: ");
-                scanner.nextLine();
             }
         }
 
@@ -48,7 +47,6 @@ public class WordCounter {
                     } catch (InvalidStopwordException e) {
                         System.out.println(
                                 "Invalid stop word, please enter a new stop word to continue or press enter to skip: ");
-                        scanner.nextLine();
                         stopWord = scanner.nextLine();
                         if (stopWord.isEmpty()) {
                             stopWord = null;
