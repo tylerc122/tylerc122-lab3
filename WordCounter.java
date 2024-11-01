@@ -12,8 +12,23 @@ public class WordCounter {
     public static void main(String[] args) {
         // Scanner stuff
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Choose option (1 for file, 2 for text): ");
-        int option = scanner.nextInt();
+        int option = 0;
+        boolean validOption = false;
+
+        while (!validOption) {
+            System.out.println("Choose option (1 for file, 2 for text): ");
+            try {
+                option = scanner.nextInt();
+                if (option == 1 || option == 2) {
+                    validOption = true;
+                } else {
+                    System.out.println("Invalid option, please enter either a 1 or a 2");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input, please enter a valid number: ");
+                scanner.nextLine();
+            }
+        }
 
         try {
             // If option one
@@ -22,9 +37,28 @@ public class WordCounter {
                 StringBuffer fileText = processFile(args[0]);
                 // If a stop word exists, it will be in args[1] so set it to that if it exists
                 String stopWord = args.length > 1 ? args[1] : null;
-                // Get count and print
-                int count = processText(fileText, stopWord);
-                System.out.println("Found " + count + " words.");
+                // Making sure we have a valid stop word
+                boolean validStopWord = false;
+
+                while (!validStopWord && (stopWord != null)) {
+                    try {
+                        int count = processText(fileText, stopWord);
+                        System.out.println("Found " + count + " words.");
+                        validStopWord = true;
+                    } catch (InvalidStopwordException e) {
+                        System.out.println(
+                                "Invalid stop word, please enter a new stop word to continue or press enter to skip: ");
+                        scanner.nextLine();
+                        stopWord = scanner.nextLine();
+                        if (stopWord.isEmpty()) {
+                            stopWord = null;
+                        }
+                    }
+                }
+                if (stopWord == null) {
+                    int count = processText(fileText, null);
+                    System.out.println("Found " + count + " words.");
+                }
             } else if (option == 2) {
                 // Same ordeal here, just with file instead
                 StringBuffer text = new StringBuffer(args[0]);
@@ -32,7 +66,9 @@ public class WordCounter {
                 int count = processText(text, stopWord);
                 System.out.println("Found " + count + " words.");
             }
-        } catch (Exception e) {
+        } catch (
+
+        Exception e) {
             System.out.println(e.toString());
         }
     }
